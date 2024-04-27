@@ -21,6 +21,9 @@ model User {
     college            College   @relation("UserCollege", fields: [collegeId], references: [id])
     collegeId          String
     password           String
+    verifyCode         String
+    isVerified         Boolean   @default(false)
+    verifyCodeExpiry   DateTime
 }
 
 model College {
