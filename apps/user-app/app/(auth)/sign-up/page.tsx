@@ -65,6 +65,7 @@ export default function () {
 
     // function to send submit request and redirect based on that
     async function onSubmit(values: z.infer<typeof signUpSchema>) {
+        setIsSubmitting(true);
         try {
             const response = await axios.post("/api/user/sign-up", values);
             if (response.data.statusCode == 200) {
@@ -90,7 +91,8 @@ export default function () {
                     (axiosError?.response?.data as { data?: string })?.data ||
                     "Unexpected data",
             });
-            console.log("There was an error try to sign in again later");
+        } finally {
+            setIsSubmitting(false);
         }
     }
 
@@ -175,8 +177,9 @@ export default function () {
                                 </FormItem>
                             )}
                         />
-                        {/* todo add a loader on click disable it */}
-                        <Button type="submit">Submit</Button>
+                        <Button type="submit" disabled={isSubmitting}>
+                            Submit
+                        </Button>
                     </form>
                 </Form>
                 <div className="text-center mr-4">
