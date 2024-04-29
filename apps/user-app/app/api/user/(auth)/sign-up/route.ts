@@ -59,8 +59,7 @@ export async function POST(request: Request) {
         });
         const isUsernameTaken = await prisma.user.findFirst({
             where: {
-                username,
-                email,
+                OR: [{ username }, { email }],
             },
         });
         if (isUsernameTaken) {
