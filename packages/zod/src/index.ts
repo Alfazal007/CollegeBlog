@@ -1,3 +1,4 @@
+import { signinSchema } from "./types/signinSchema";
 import { signUpSchema } from "./types/signupSchema";
 
-export { signUpSchema };
+export { signUpSchema, signinSchema };

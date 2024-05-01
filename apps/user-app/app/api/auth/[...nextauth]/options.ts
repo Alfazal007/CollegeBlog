@@ -6,8 +6,6 @@ import { NextAuthOptions } from "next-auth";
 export const authOptions: NextAuthOptions = {
     providers: [
         CredentialsProvider({
-            name: "Credentials",
-            id: "Login Creds",
             credentials: {
                 email: {
                     label: "Email",
@@ -20,6 +18,7 @@ export const authOptions: NextAuthOptions = {
             },
             async authorize(credentials: any) {
                 try {
+                    console.log("HERE");
                     const userFromDb = await prisma.user.findFirst({
                         where: {
                             OR: [
