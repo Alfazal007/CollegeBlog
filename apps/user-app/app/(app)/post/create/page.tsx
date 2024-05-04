@@ -18,11 +18,15 @@ import { Input } from "../../../../@/components/ui/input";
 import { Button } from "../../../../@/components/ui/button";
 import axios, { AxiosError } from "axios";
 import { Textarea } from "../../../../@/components/ui/textarea";
+import { useSession } from "next-auth/react";
+import { Skeleton } from "../../../../@/components/ui/skeleton";
 
 export default function () {
     const { toast } = useToast();
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const router = useRouter();
+    const { data: session, status } = useSession();
+
     // zod implementation
     const form = useForm<z.infer<typeof createPostSchema>>({
         resolver: zodResolver(createPostSchema),
@@ -38,7 +42,7 @@ export default function () {
                 toast({
                     title: "Post successful",
                 });
-                router.replace(`/post/${response.data.data.postId}`);
+                router.replace(`/post/getpost/${response.data.data.postId}`);
             } else {
                 toast({
                     variant: "destructive",
@@ -59,63 +63,82 @@ export default function () {
             setIsSubmitting(false);
         }
     }
-
-    return (
-        <div className="flex justify-center items-center min-h-screen bg-gray-100">
-            <div className="w-full max-w-screen-md p-8 space-y-8 bg-white rounded-lg shadow-md">
-                <div className="text-center">
-                    <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
-                        Post a question
-                    </h1>
-                    <p className="mb-4">
-                        Post a question anonymously and get an anonymous
-                        response
-                    </p>
+    if (status === "loading") {
+        return (
+            <div className="flex justify-center items-center min-h-screen bg-gray-100">
+                <div className="w-full max-w-screen-md p-8 space-y-8 bg-white rounded-lg shadow-md">
+                    <div className="space-y-4">
+                        <Skeleton className="h-24 w-full" />
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-24 w-full" />
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-8 w-32" />
+                    </div>
                 </div>
-                <Form {...form}>
-                    <form
-                        onSubmit={form.handleSubmit(onSubmit)}
-                        className="space-y-8"
-                    >
-                        <FormField
-                            control={form.control}
-                            name="subject"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Subject</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            placeholder="subject"
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="content"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Content</FormLabel>
-                                    <FormControl>
-                                        <Textarea
-                                            rows={10}
-                                            placeholder="content"
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <Button type="submit" disabled={isSubmitting}>
-                            Submit
-                        </Button>
-                    </form>
-                </Form>
             </div>
-        </div>
-    );
+        );
+    }
+
+    if (status === "unauthenticated") {
+        router.push("/sign-in");
+    } else {
+        return (
+            <div className="flex justify-center items-center min-h-screen bg-gray-100">
+                <div className="w-full max-w-screen-md p-8 space-y-8 bg-white rounded-lg shadow-md">
+                    <div className="text-center">
+                        <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
+                            Post a question
+                        </h1>
+                        <p className="mb-4">
+                            Post a question anonymously and get an anonymous
+                            response
+                        </p>
+                    </div>
+                    <Form {...form}>
+                        <form
+                            onSubmit={form.handleSubmit(onSubmit)}
+                            className="space-y-8"
+                        >
+                            <FormField
+                                control={form.control}
+                                name="subject"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Subject</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                placeholder="subject"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="content"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Content</FormLabel>
+                                        <FormControl>
+                                            <Textarea
+                                                rows={10}
+                                                placeholder="content"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <Button type="submit" disabled={isSubmitting}>
+                                Submit
+                            </Button>
+                        </form>
+                    </Form>
+                </div>
+            </div>
+        );
+    }
 }
