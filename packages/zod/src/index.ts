@@ -1,5 +1,6 @@
 import { createPostSchema } from "./types/createPostSchema";
 import { signinSchema } from "./types/signinSchema";
 import { signUpSchema } from "./types/signupSchema";
+import { oldNewPasswordSchema } from "./types/updateUserPasswordSchema";
 
-export { signUpSchema, signinSchema, createPostSchema };
+export { signUpSchema, signinSchema, createPostSchema, oldNewPasswordSchema };
