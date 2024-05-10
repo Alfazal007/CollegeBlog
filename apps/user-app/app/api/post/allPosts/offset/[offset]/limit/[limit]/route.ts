@@ -26,16 +26,32 @@ export async function GET(request: Request, { params }: { params: { offset: numb
   }
   try {
     const postsToSend = await redis.hget('posts', 'allPosts');
-    if (!postsToSend) {
+    if (!postsToSend || postsToSend == '[]') {
       const allPosts = await prisma.post.findMany({
         take: limitNum,
         skip: offset * limitNum,
         orderBy: {
           createdAt: "desc"
+        },
+        select: {
+          updatedAt: true,
+          content: true,
+          views: true,
+          subject: true,
+          creator: {
+            select: {
+              username: true,
+              college: {
+                select: {
+                  name: true
+                }
+              }
+            }
+          }
         }
       });
       await redis.hset('posts', 'allPosts', JSON.stringify(allPosts));
-      await redis.expire('posts', 3600);
+      await redis.expire('posts', 10);
       return Response.json(new ApiResponse(200, `Found totally ${allPosts.length} posts DB DATA`, allPosts));
     } else {
       const data = JSON.parse(postsToSend.replace(/\\/g, ''));
