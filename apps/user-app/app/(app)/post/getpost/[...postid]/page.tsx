@@ -6,11 +6,42 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useToast } from "../../../../../@/components/ui/use-toast";
 import SinglePost from "../../../../../components/SinglePost";
+import { Content } from "../../../../../interfaces/interface";
 
 export default function() {
   const param = useParams<{ postid: string }>();
   const router = useRouter();
-  const [post, setPost] = useState({});
+  const [post, setPost] = useState<Content>({
+    id: "",
+    views: 0,
+    _count: {
+      Upvotes: 0,
+      Downvotes: 0
+    },
+    content: "",
+    creator: {
+      college: {
+        name: ""
+      }
+    },
+    subject: "",
+    updatedAt: "",
+    Replies: [
+      {
+        content: "",
+        _count: {
+          UpvotesReply: 0,
+          DownvotesReply: 0
+        },
+        createdAt: "",
+        creator: {
+          college: {
+            name: ""
+          }
+        }
+      }
+    ]
+  });
   const [fetching, setIsFetching] = useState<boolean>(false);
   const { data: session, status } = useSession();
   const { toast } = useToast();
@@ -29,6 +60,7 @@ export default function() {
         });
         return;
       }
+      const dataFromBackend = response.data.data as Content;
       setPost(response.data.data);
       setIsFetching(false);
     }
@@ -55,11 +87,7 @@ export default function() {
   } else {
     return (
       <div>
-        {JSON.stringify(post)}
-        This is the post page {param.postid}
-        <div></div>
-        <div></div>
-        <SinglePost />
+        <SinglePost post={post} username={session?.user.username || ""} />
       </div>
     );
   }

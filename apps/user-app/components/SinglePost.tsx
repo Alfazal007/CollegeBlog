@@ -6,93 +6,74 @@
 import { AvatarImage, AvatarFallback, Avatar } from "../@/components/ui/avatar"
 import { Textarea } from "../@/components/ui/textarea"
 
-export default function SinglePost() {
+export default function SinglePost({ post, username }: { post: Content, username: string }) {
   return (
     <main className="flex flex-col min-h-[100dvh]">
       <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold">Introducing the new product feature</h1>
+            <h1 className="text-3xl font-bold">
+              {post.subject}
+            </h1>
           </div>
           <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 mb-4">
             <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
               <ThumbsUpIcon className="w-5 h-5" />
-              <span>123</span>
+              <span>{post._count.Upvotes}</span>
             </div>
             <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
               <ThumbsDownIcon className="w-5 h-5" />
-              <span>45</span>
+              <span>{post._count.Downvotes}</span>
             </div>
             <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
               <CalendarIcon className="w-5 h-5" />
-              <span>2023-04-15</span>
+              <span>{post.updatedAt.substring(0, 10)}</span>
             </div>
             <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
               <UserIcon className="w-5 h-5" />
-              <span>John Doe</span>
+              <span>Anonymous Person from {post.creator.college.name}</span>
             </div>
           </div>
           <div className="mt-8">
             <p className="text-gray-700 dark:text-gray-300">
-              We are excited to announce the launch of our new product feature. This feature will revolutionize the way
-              you interact with our platform. With this new addition, you can expect to see a significant improvement in
-              your overall experience.
+              {post.content}
             </p>
           </div>
           <div className="mt-8">
             <h2 className="text-2xl font-bold mb-4">Replies</h2>
-            <div className="space-y-4">
-              <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
-                <div className="flex items-center space-x-2 mb-2">
-                  <Avatar className="w-8 h-8">
-                    <AvatarImage alt="@shadcn" src="/placeholder-user.jpg" />
-                    <AvatarFallback>JD</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h3 className="font-semibold">Jane Doe</h3>
-                    <p className="text-gray-500 dark:text-gray-400 text-sm">2023-04-16</p>
+            {
+              post.Replies.map((reply) => (
+
+                <div className="space-y-4">
+                  <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Avatar className="w-8 h-8">
+                        <AvatarImage alt="@shadcn" src="/placeholder-user.jpg" />
+                        <AvatarFallback>{reply.creator.college.name.substring(0, 1).toUpperCase()}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h3 className="font-semibold">Someone from {reply.creator.college.name}</h3>
+                        <p className="text-gray-500 dark:text-gray-400 text-sm">{reply.createdAt.substring(0, 10)}</p>
+                      </div>
+                    </div>
+                    <p className="text-gray-700 dark:text-gray-300">
+                      {reply.content}
+                    </p>
+                    <div className="flex items-center space-x-4 mt-2">
+                      <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
+                        <ThumbsUpIcon className="w-5 h-5" />
+                        <span>{reply._count.UpvotesReply}</span>
+                      </div>
+                      <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
+                        <ThumbsDownIcon className="w-5 h-5" />
+                        <span>{reply._count.DownvotesReply}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <p className="text-gray-700 dark:text-gray-300">
-                  This new feature looks amazing! I can't wait to try it out.
-                </p>
-                <div className="flex items-center space-x-4 mt-2">
-                  <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
-                    <ThumbsUpIcon className="w-5 h-5" />
-                    <span>20</span>
-                  </div>
-                  <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
-                    <ThumbsDownIcon className="w-5 h-5" />
-                    <span>2</span>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
-                <div className="flex items-center space-x-2 mb-2">
-                  <Avatar className="w-8 h-8">
-                    <AvatarImage alt="@shadcn" src="/placeholder-user.jpg" />
-                    <AvatarFallback>JD</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h3 className="font-semibold">John Smith</h3>
-                    <p className="text-gray-500 dark:text-gray-400 text-sm">2023-04-17</p>
-                  </div>
-                </div>
-                <p className="text-gray-700 dark:text-gray-300">
-                  I'm really excited to see how this new feature will improve my experience. Great work!
-                </p>
-                <div className="flex items-center space-x-4 mt-2">
-                  <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
-                    <ThumbsUpIcon className="w-5 h-5" />
-                    <span>15</span>
-                  </div>
-                  <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
-                    <ThumbsDownIcon className="w-5 h-5" />
-                    <span>1</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+
+              ))
+            }
           </div>
           <div className="mt-8">
             <h2 className="text-2xl font-bold mb-4">Create a new reply</h2>
@@ -100,7 +81,7 @@ export default function SinglePost() {
               <div className="flex items-start space-x-2 mb-4">
                 <Avatar className="w-8 h-8">
                   <AvatarImage alt="@shadcn" src="/placeholder-user.jpg" />
-                  <AvatarFallback>JD</AvatarFallback>
+                  <AvatarFallback>{username.substring(0, 2)}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
                   <Textarea
@@ -120,6 +101,7 @@ export default function SinglePost() {
   )
 }
 import { Button } from "../@/components/ui/button"
+import { Content } from "../interfaces/interface"
 
 function CalendarIcon(props: any) {
   return (
