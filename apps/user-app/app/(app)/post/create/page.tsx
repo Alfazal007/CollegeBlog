@@ -21,7 +21,7 @@ import { Textarea } from "../../../../@/components/ui/textarea";
 import { useSession } from "next-auth/react";
 import { Skeleton } from "../../../../@/components/ui/skeleton";
 
-export default function () {
+export default function() {
     const { toast } = useToast();
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const router = useRouter();

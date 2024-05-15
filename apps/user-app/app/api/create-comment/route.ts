@@ -35,7 +35,7 @@ export async function POST(request: Request) {
         if (!postFromDB) {
             return Response.json(new ApiError(400, "No post with this id found in the DB"), { status: 400 });
         }
-        const newReply = prisma.replies.create({
+        const newReply = await prisma.replies.create({
             data: {
                 postId: postId,
                 content: content,
