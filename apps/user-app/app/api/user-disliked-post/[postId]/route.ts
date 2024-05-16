@@ -14,16 +14,16 @@ export async function GET(request: Request, { params }: { params: { postId: stri
         return Response.json(new ApiError(400, "Login dude"), { status: 400 })
     }
     try {
-        const userLikedPost = await prisma.upvotes.findFirst({
+        const userLikedPost = await prisma.downvotes.findFirst({
             where: {
                 postId: postId,
                 userId: session.user.id || ""
             }
         });
         if (userLikedPost) {
-            return Response.json(new ApiResponse(200, "Found", { liked: true }), { status: 200 });
+            return Response.json(new ApiResponse(200, "Found", { disliked: true }), { status: 200 });
         } else {
-            return Response.json(new ApiResponse(200, "Not  found", { liked: false }), { status: 200 });
+            return Response.json(new ApiResponse(200, "Not  found", { disliked: false }), { status: 200 });
         }
     } catch (err) {
         console.log(err);

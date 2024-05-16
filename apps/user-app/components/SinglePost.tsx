@@ -18,6 +18,7 @@ export default function SinglePost({ post, username }: { post: Content, username
         },
     });
     const [isLiked, setIsLiked] = useState<boolean>(false);
+    const [isDisLikedPost, setIsDislikedPost] = useState<boolean>(false);
     useEffect(() => {
         // TODO:: check if post is liked or not
         async function getter() {
@@ -28,6 +29,15 @@ export default function SinglePost({ post, username }: { post: Content, username
                 const liked = likedPost.data.data.liked;
                 setIsLiked(liked);
             }
+            if (!isLiked) {
+                const dislikedPost = await axios.get(`/api/user-disliked-post/${post.id}`);
+                if (dislikedPost.status !== 200) {
+                    setIsDislikedPost(false);
+                } else {
+                    const disliked = dislikedPost.data.data.disliked;
+                    setIsDislikedPost(disliked);
+                }
+            }
         }
         if (post.id)
             getter();
@@ -36,7 +46,6 @@ export default function SinglePost({ post, username }: { post: Content, username
         const response = await axios.post(`/api/upvote-post`, {
             postId: post.id
         });
-
     }
     const { toast } = useToast();
     async function onSubmit(values: z.infer<typeof createReplySchema>) {
@@ -75,11 +84,13 @@ export default function SinglePost({ post, username }: { post: Content, username
                     </div>
                     <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 mb-4">
                         <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
-                            <ThumbsUpIcon className="w-5 h-5" />
+                            <ThumbsUpIcon className="w-5 h-5"
+                                isLikedPost={isLiked}
+                            />
                             <span>{post._count.Upvotes}</span>
                         </div>
                         <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
-                            <ThumbsDownIcon className="w-5 h-5" />
+                            <ThumbsDownIcon className="w-5 h-5" isDisLikedPost={isDisLikedPost} />
                             <span>{post._count.Downvotes}</span>
                         </div>
                         <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
@@ -118,11 +129,11 @@ export default function SinglePost({ post, username }: { post: Content, username
                                         <div className="flex items-center space-x-4 mt-2">
                                             <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
 
-                                                <ThumbsUpIcon className="w-5 h-5" />
+                                                <ThumbsUpIcon className="w-5 h-5" isLikedPost={false} />
                                                 <span>{reply._count.UpvotesReply}</span>
                                             </div>
                                             <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
-                                                <ThumbsDownIcon className="w-5 h-5" />
+                                                <ThumbsDownIcon className="w-5 h-5" isDisLikedPost={false} />
                                                 <span>{reply._count.DownvotesReply}</span>
                                             </div>
                                         </div>
@@ -210,15 +221,16 @@ function CalendarIcon(props: any) {
 }
 
 
-function ThumbsDownIcon(props: any) {
+function ThumbsDownIcon({ isDisLikedPost = false, className = "", props }: { isDisLikedPost: boolean, className: string, props?: any }) {
     return (
         <svg
             {...props}
+            className={className}
             xmlns="http://www.w3.org/2000/svg"
             width="24"
             height="24"
             viewBox="0 0 24 24"
-            fill="none"
+            fill={isDisLikedPost ? "fill" : "none"}
             stroke="currentColor"
             strokeWidth="2"
             strokeLinecap="round"
@@ -231,15 +243,16 @@ function ThumbsDownIcon(props: any) {
 }
 
 
-function ThumbsUpIcon(props: any) {
+function ThumbsUpIcon({ isLikedPost = false, className = "", props }: { isLikedPost: boolean, className: string, props?: any }) {
     return (
         <svg
             {...props}
+            className={className}
+            fill={isLikedPost ? "fill" : "none"}
             xmlns="http://www.w3.org/2000/svg"
             width="24"
             height="24"
             viewBox="0 0 24 24"
-            fill="none"
             stroke="currentColor"
             strokeWidth="2"
             strokeLinecap="round"

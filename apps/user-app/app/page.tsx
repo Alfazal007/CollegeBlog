@@ -13,4 +13,4 @@ export default function Page(): JSX.Element {
 // TODO: ADD UPDATE FEATURE IN A DIFFERENT BACKEND
 //
 //
-// TODO:: Handle the frontend of like feature 
+// TODO:: Handle the frontend of like feature
