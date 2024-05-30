@@ -3,10 +3,6 @@ export interface Reply {
     content: string;
     id: string;
     createdAt: string;
-    _count: {
-        UpvotesReply: number;
-        DownvotesReply: number;
-    };
     creator: Creator
 }
 

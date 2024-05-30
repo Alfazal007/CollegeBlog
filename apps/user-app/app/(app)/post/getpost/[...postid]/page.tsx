@@ -8,7 +8,7 @@ import { useToast } from "../../../../../@/components/ui/use-toast";
 import SinglePost from "../../../../../components/SinglePost";
 import { Content } from "../../../../../interfaces/interface";
 
-export default function() {
+export default function () {
     const param = useParams<{ postid: string }>();
     const router = useRouter();
     const [post, setPost] = useState<Content>({
@@ -30,10 +30,6 @@ export default function() {
             {
                 id: "",
                 content: "",
-                _count: {
-                    UpvotesReply: 0,
-                    DownvotesReply: 0
-                },
                 createdAt: "",
                 creator: {
                     college: {

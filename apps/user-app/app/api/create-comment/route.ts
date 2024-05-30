@@ -40,14 +40,17 @@ export async function POST(request: Request) {
                 postId: postId,
                 content: content,
                 creatorId: session?.user?.id || ""
-            },
+            }
         });
+        console.log(newReply)
         if (!newReply) {
             return Response.json(new ApiError(400, "There was an error creating the post"), {
                 status: 400
             });
         }
-        return Response.json(new ApiResponse(200, "A new reply was created", {}), {
+        return Response.json(new ApiResponse(200, "A new reply was created", {
+            id: newReply.id, content: newReply.content, createdAt: newReply.createdAt
+        }), {
             status: 200
         });
     } catch (err) {

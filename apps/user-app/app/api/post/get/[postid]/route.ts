@@ -39,12 +39,6 @@ export async function GET(
                         id: true,
                         content: true,
                         createdAt: true,
-                        _count: {
-                            select: {
-                                UpvotesReply: true,
-                                DownvotesReply: true
-                            }
-                        },
                         creator: {
                             select: {
                                 college: {

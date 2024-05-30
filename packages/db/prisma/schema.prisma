@@ -28,8 +28,6 @@ model User {
     Downvotes          Downvotes[]
     Post               Post[]
     Replies            Replies[]
-    UpvotesReply       UpvotesReply[]
-    DownvotesReply     DownvotesReply[]
 }
 
 model College {
@@ -61,8 +59,6 @@ model Replies {
     creator        User             @relation(fields: [creatorId], references: [id], onDelete: Cascade)
     postId         String
     post           Post             @relation(fields: [postId], references: [id], onDelete: Cascade)
-    UpvotesReply   UpvotesReply[]
-    DownvotesReply DownvotesReply[]
 }
 
 model Upvotes {
@@ -71,6 +67,7 @@ model Upvotes {
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
     postId String
     post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+    @@unique([userId, postId])
 }
 
 model Downvotes {
@@ -79,20 +76,5 @@ model Downvotes {
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
     postId String
     post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
-}
-
-model UpvotesReply {
-    id      String  @id @default(uuid())
-    userId  String
-    user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-    replyId String
-    reply   Replies @relation(fields: [replyId], references: [id], onDelete: Cascade)
-}
-
-model DownvotesReply {
-    id      String  @id @default(uuid())
-    userId  String
-    user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-    replyId String
-    reply   Replies @relation(fields: [replyId], references: [id], onDelete: Cascade)
+    @@unique([userId, postId])
 }

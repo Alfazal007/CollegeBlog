@@ -25,7 +25,7 @@ interface Creator {
 }
 
 
-export default function() {
+export default function () {
     const [allPosts, setAllPosts] = useState([]);
     const { toast } = useToast();
     const { data: session, status } = useSession();
@@ -73,7 +73,7 @@ export default function() {
     } else {
         return (
             <>
-                <div className="flex">
+                <div className="flex mt-2">
                     <div className="md:flex md:flex-wrap md:justify-center">
                         {
                             allPosts.map((post: Post) => (

@@ -17,8 +17,11 @@ export default function SinglePost({ post, username }: { post: Content, username
             reply: "",
         },
     });
+    const [likeCount, setLikeCount] = useState<number>(post._count.Upvotes);
+    const [dislikeCount, setDislikeCount] = useState<number>(post._count.Downvotes);
     const [isLiked, setIsLiked] = useState<boolean>(false);
     const [isDisLikedPost, setIsDislikedPost] = useState<boolean>(false);
+    const [replies, setReplies] = useState<Reply[]>(post.Replies);
     useEffect(() => {
         // TODO:: check if post is liked or not
         async function getter() {
@@ -42,11 +45,6 @@ export default function SinglePost({ post, username }: { post: Content, username
         if (post.id)
             getter();
     }, [post.id]);
-    async function callUpvote() {
-        const response = await axios.post(`/api/upvote-post`, {
-            postId: post.id
-        });
-    }
     const { toast } = useToast();
     async function onSubmit(values: z.infer<typeof createReplySchema>) {
         try {
@@ -56,7 +54,17 @@ export default function SinglePost({ post, username }: { post: Content, username
                 toast({
                     "title": "Created reply sucessfully",
                 });
-                window.location.reload();
+                const reply: Reply = {
+                    content: response.data.data.content,
+                    id: response.data.data.id,
+                    createdAt: response.data.data.createdAt,
+                    creator: {
+                        college: {
+                            name: post.creator.college.name
+                        }
+                    }
+                } as Reply;
+                setReplies((prev) => [...prev, reply])
             } else {
                 toast({
                     "title": "There was an error creating the comment",
@@ -69,10 +77,44 @@ export default function SinglePost({ post, username }: { post: Content, username
                 "variant": "destructive"
             })
         } finally {
+            form.reset()
             setIsSubmitting(false);
         }
     }
-    console.log({ reply: post.Replies });
+    async function likePost() {
+        try {
+            const response = await axios.post("/api/upvote-post", { postId: post.id })
+            if (response.status == 200) {
+                if (response.data.message === "Upvoted the post") {
+                    setIsLiked(true)
+                    setLikeCount((prev) => prev + 1)
+                } else if (response.data.message === "Upvote removed") {
+                    setIsLiked(false)
+                    setLikeCount((prev) => prev - 1)
+                }
+            }
+        } catch (err) {
+            console.log(`There was an error`, err)
+        }
+    }
+    async function dislikePost() {
+        try {
+            const response = await axios.post("/api/downvote-post", { postId: post.id })
+            if (response.status == 200) {
+                if (response.data.message === "Downvoted the post") {
+                    setIsDislikedPost(true)
+                    setDislikeCount((prev) => prev + 1)
+                } else if (response.data.message === "Downvote removed") {
+                    setIsDislikedPost(false)
+                    setDislikeCount((prev) => prev - 1)
+                }
+            }
+        } catch (err) {
+            console.log(`There was an error`, err)
+        }
+    }
+
+
     return (
         <main className="flex flex-col min-h-[100dvh]">
             <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -83,15 +125,15 @@ export default function SinglePost({ post, username }: { post: Content, username
                         </h1>
                     </div>
                     <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 mb-4">
-                        <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
+                        <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400" onClick={likePost}>
                             <ThumbsUpIcon className="w-5 h-5"
                                 isLikedPost={isLiked}
                             />
-                            <span>{post._count.Upvotes}</span>
+                            <span>{likeCount}</span>
                         </div>
-                        <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
+                        <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400" onClick={dislikePost}>
                             <ThumbsDownIcon className="w-5 h-5" isDisLikedPost={isDisLikedPost} />
-                            <span>{post._count.Downvotes}</span>
+                            <span>{dislikeCount}</span>
                         </div>
                         <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
                             <CalendarIcon className="w-5 h-5" />
@@ -110,7 +152,7 @@ export default function SinglePost({ post, username }: { post: Content, username
                     <div className="mt-8">
                         <h2 className="text-2xl font-bold mb-4">Replies</h2>
                         {
-                            post.Replies.map((reply) => (
+                            replies.map((reply) => (
                                 <div className="space-y-4 mt-4" key={reply.id}>
                                     <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
                                         <div className="flex items-center space-x-2 mb-2">
@@ -119,24 +161,13 @@ export default function SinglePost({ post, username }: { post: Content, username
                                                 <AvatarFallback>{reply.creator.college.name.substring(0, 1).toUpperCase()}</AvatarFallback>
                                             </Avatar>
                                             <div>
-                                                <h3 className="font-semibold">Someone from {reply.creator.college.name}</h3>
+                                                <h3 className="font-semibold mr-8">Someone from {reply.creator.college.name}</h3>
                                                 <p className="text-gray-500 dark:text-gray-400 text-sm">{reply.createdAt.substring(0, 10)}</p>
                                             </div>
                                         </div>
                                         <p className="text-gray-700 dark:text-gray-300">
                                             {reply.content}
                                         </p>
-                                        <div className="flex items-center space-x-4 mt-2">
-                                            <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
-
-                                                <ThumbsUpIcon className="w-5 h-5" isLikedPost={false} />
-                                                <span>{reply._count.UpvotesReply}</span>
-                                            </div>
-                                            <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
-                                                <ThumbsDownIcon className="w-5 h-5" isDisLikedPost={false} />
-                                                <span>{reply._count.DownvotesReply}</span>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
 
@@ -188,13 +219,11 @@ export default function SinglePost({ post, username }: { post: Content, username
     )
 }
 import { Button } from "../@/components/ui/button"
-import { Content } from "../interfaces/interface"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../@/components/ui/form";
-import { Input } from "../@/components/ui/input";
+import { Content, Reply } from "../interfaces/interface"
+import { Form, FormControl, FormField, FormItem, FormMessage } from "../@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { createReplySchema } from "@repo/zod/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import { useToast } from "../@/components/ui/use-toast";
 import axios from "axios";
 
@@ -264,6 +293,28 @@ function ThumbsUpIcon({ isLikedPost = false, className = "", props }: { isLikedP
     )
 }
 
+function Trash2Icon(props: any) {
+    return (
+        <svg
+            {...props}
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        >
+            <path d="M3 6h18" />
+            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+            <line x1="10" x2="10" y1="11" y2="17" />
+            <line x1="14" x2="14" y1="11" y2="17" />
+        </svg>
+    )
+}
 
 function UserIcon(props: any) {
     return (

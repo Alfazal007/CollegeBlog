@@ -133,12 +133,11 @@ export default function () {
                                     )}
                                     {username && (
                                         <p
-                                            className={`text-sm ${
-                                                usernameMessage ===
-                                                "Username is available"
+                                            className={`text-sm ${usernameMessage ===
+                                                    "Username is available"
                                                     ? "text-green-500"
                                                     : "text-red-500"
-                                            } `}
+                                                } `}
                                         >
                                             {usernameMessage}
                                         </p>
