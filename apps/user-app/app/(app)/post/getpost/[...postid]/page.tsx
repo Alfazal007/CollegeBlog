@@ -5,8 +5,8 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useToast } from "../../../../../@/components/ui/use-toast";
-import SinglePost from "../../../../../components/SinglePost";
 import { Content } from "../../../../../interfaces/interface";
+import SinglePost from "../../../../../components/SinglePost";
 
 export default function () {
     const param = useParams<{ postid: string }>();
