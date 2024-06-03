@@ -41,6 +41,7 @@ export default function () {
     });
     const [fetching, setIsFetching] = useState<boolean>(false);
     const { data: session, status } = useSession();
+    const [isCreator, setIsCreator] = useState<boolean>(false);
     const { toast } = useToast();
     useEffect(() => {
         if (status === "loading" || status === "unauthenticated") {
@@ -59,10 +60,16 @@ export default function () {
             }
             const dataFromBackend = response.data.data as Content;
             setPost(response.data.data);
-            setIsFetching(false);
-        }
-        getter();
-    }, [status]);
+            const isOwnerResponse = await axios.post("/api/post/isOwner", { postId: post.id })
+            console.log({ isOwnerResponse })
+            if (response.status === 200) {
+                if (response.data.isOwner === true) {
+                    setIsCreator(true)
+                }
+                setIsFetching(false);
+            }
+            getter();
+        }, [status]);
     if (status === "loading" || fetching == true) {
         return (
             <div className="flex justify-center items-center min-h-screen bg-gray-100">

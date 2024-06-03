@@ -143,6 +143,14 @@ export default function SinglePost({ post, username }: { post: Content, username
                             <UserIcon className="w-5 h-5" />
                             <span>Anonymous Person from {post.creator.college.name}</span>
                         </div>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label="Delete"
+                            className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50 ml-[-12px] sm:ml-0"
+                        >
+                            <Trash2Icon className="h-5 w-5" />
+                        </Button>
                     </div>
                     <div className="mt-8">
                         <p className="text-gray-700 dark:text-gray-300">
