@@ -1,8 +1,8 @@
 import { getServerSession } from "next-auth";
-import { ApiError } from "../../../../lib/ApiError";
-import { authOptions } from "../../auth/[...nextauth]/options";
+import { ApiError } from "../../../../../lib/ApiError";
+import { authOptions } from "../../../auth/[...nextauth]/options";
 import prisma from "@repo/db/client";
-import { ApiResponse } from "../../../../lib/ApiResponse";
+import { ApiResponse } from "../../../../../lib/ApiResponse";
 
 export async function DELETE(
     request: Request,

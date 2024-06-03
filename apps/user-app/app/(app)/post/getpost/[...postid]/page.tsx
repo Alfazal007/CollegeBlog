@@ -60,16 +60,18 @@ export default function () {
             }
             const dataFromBackend = response.data.data as Content;
             setPost(response.data.data);
-            const isOwnerResponse = await axios.post("/api/post/isOwner", { postId: post.id })
-            console.log({ isOwnerResponse })
-            if (response.status === 200) {
-                if (response.data.isOwner === true) {
-                    setIsCreator(true)
+            if (dataFromBackend.id) {
+                const isOwnerResponse = await axios.post("/api/post/isOwner", { postId: dataFromBackend.id })
+                if (response.status === 200) {
+                    if (isOwnerResponse.data.data.isOwner === true) {
+                        setIsCreator(true)
+                    }
                 }
-                setIsFetching(false);
             }
-            getter();
-        }, [status]);
+            setIsFetching(false);
+        }
+        getter();
+    }, [status])
     if (status === "loading" || fetching == true) {
         return (
             <div className="flex justify-center items-center min-h-screen bg-gray-100">
@@ -91,7 +93,7 @@ export default function () {
     } else {
         return (
             <div>
-                <SinglePost post={post} username={session?.user.username || ""} />
+                <SinglePost post={post} username={session?.user.username || ""} isOwner={isCreator} />
             </div>
         );
     }

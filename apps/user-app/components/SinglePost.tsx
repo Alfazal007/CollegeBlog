@@ -9,7 +9,19 @@ import { Textarea } from "../@/components/ui/textarea"
 import { useEffect, useState } from "react";
 import { z } from "zod";
 
-export default function SinglePost({ post, username }: { post: Content, username: string }) {
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "../@/components/ui/alert-dialog"
+
+export default function SinglePost({ post, username, isOwner }: { post: Content, username: string, isOwner: boolean }) {
     const [submitting, setIsSubmitting] = useState<boolean>(false);
     const form = useForm<z.infer<typeof createReplySchema>>({
         resolver: zodResolver(createReplySchema),
@@ -22,6 +34,7 @@ export default function SinglePost({ post, username }: { post: Content, username
     const [isLiked, setIsLiked] = useState<boolean>(false);
     const [isDisLikedPost, setIsDislikedPost] = useState<boolean>(false);
     const [replies, setReplies] = useState<Reply[]>(post.Replies);
+    const router = useRouter()
     useEffect(() => {
         // TODO:: check if post is liked or not
         async function getter() {
@@ -45,6 +58,7 @@ export default function SinglePost({ post, username }: { post: Content, username
         if (post.id)
             getter();
     }, [post.id]);
+    const [isDeleting, setIsDeleting] = useState<boolean>(false);
     const { toast } = useToast();
     async function onSubmit(values: z.infer<typeof createReplySchema>) {
         try {
@@ -113,6 +127,22 @@ export default function SinglePost({ post, username }: { post: Content, username
             console.log(`There was an error`, err)
         }
     }
+    async function deleter() {
+        if (!isOwner) {
+            return;
+        }
+        try {
+            await axios.delete(`/api/post/delete/${post.id}`)
+            router.replace("/dashboard")
+            toast({
+                title: "Delete request sent",
+                description: "Backend has requested the delete operation, it might take a while to reflect this operation"
+            })
+
+        } catch (err) {
+            console.log("There was an error deleting the post try again later", err)
+        }
+    }
 
 
     return (
@@ -143,14 +173,37 @@ export default function SinglePost({ post, username }: { post: Content, username
                             <UserIcon className="w-5 h-5" />
                             <span>Anonymous Person from {post.creator.college.name}</span>
                         </div>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            aria-label="Delete"
-                            className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50 ml-[-12px] sm:ml-0"
-                        >
-                            <Trash2Icon className="h-5 w-5" />
-                        </Button>
+                        {
+
+                            isOwner &&
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button
+                                        onClick={() => { setIsDeleting(true); console.log("CLIICKED THE DELETE BUTTON", isDeleting) }}
+                                        variant="ghost"
+                                        size="icon"
+                                        aria-label="Delete"
+                                        className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50 ml-[-12px] sm:ml-0"
+                                    >
+                                        <Trash2Icon className="h-5 w-5" />
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            This action cannot be undone. This will permanently delete your
+                                            account and remove your data from our servers.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction onClick={deleter}>Continue</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+
+                        }
                     </div>
                     <div className="mt-8">
                         <p className="text-gray-700 dark:text-gray-300">
@@ -234,6 +287,9 @@ import { createReplySchema } from "@repo/zod/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "../@/components/ui/use-toast";
 import axios from "axios";
+import { useRouter } from "next/navigation";
+
+
 
 function CalendarIcon(props: any) {
     return (
