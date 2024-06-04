@@ -58,11 +58,11 @@ export default function () {
         return (
             <>
                 <div className="flex mt-2">
-                    <div className="md:flex md:flex-wrap md:justify-center w-full md:w-auto">
+                    <div className="w-full">
                         {
                             allColleges.map((college: { name: string, id: string, isFollowing: boolean }) => {
                                 return (
-                                    <div key={college.id} className="w-full md:w-auto">
+                                    <div key={college.id}>
                                         <CollegeComponent collegeName={college.name} isFollowing={college.isFollowing} />
                                     </div>
                                 )
@@ -76,6 +76,17 @@ export default function () {
 }
 
 function CollegeComponent({ collegeName, isFollowing }: { collegeName: string, isFollowing: boolean }) {
+    const [isFollowing2, setIsFollowing2] = useState<boolean>(isFollowing)
+    async function followHandle() {
+        try {
+            const response = await axios.post("/api/follow-college", { collegeName });
+            if (response.status == 200) {
+                setIsFollowing2((prev) => !prev)
+            }
+        } catch (err) {
+            console.log(err)
+        }
+    }
     return (
         <>
             <div className="bg-white rounded-lg shadow-md overflow-hidden dark:bg-gray-800 m-2">
@@ -84,9 +95,11 @@ function CollegeComponent({ collegeName, isFollowing }: { collegeName: string, i
                         <div className="font-semibold p-4 text-gray-800 hover:text-gray-900 dark:text-gray-200 dark:hover:text-gray-100">
                             {collegeName.toUpperCase()}
                         </div>
-                        <Button size="sm" variant={isFollowing ? "outline" : "default"}>
-                            {isFollowing ? "Unfollow" : "Follow"}
-                        </Button>
+                        <div onClick={followHandle}>
+                            <Button size="sm" variant={isFollowing2 ? "outline" : "default"}>
+                                {isFollowing2 ? "Unfollow" : "Follow"}
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </div>

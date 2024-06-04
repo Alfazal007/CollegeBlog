@@ -31,7 +31,19 @@ export async function POST(request: Request) {
             }
         });
         if (isUserFollowing) {
-            console.log(`Is user following ${isUserFollowing}`)
+            const res = await prisma.user.update({
+                where: {
+                    id: session.user.id
+                },
+                data: {
+                    interestedColleges: {
+                        disconnect: {
+                            name: collegeName
+                        }
+                    }
+                }
+            })
+            console.log({ res })
             return Response.json(new ApiResponse(200, "Already following the contents of this college", { isFollowing: true }), { status: 200 })
         }
         const res = await prisma.user.update({
@@ -48,9 +60,6 @@ export async function POST(request: Request) {
         })
         console.log(`After update ${res}`)
         return Response.json(new ApiResponse(200, "Done", { isUserFollowing }), { status: 200 })
-        // if already following then return
-        // if not following then follow the user
-        // return positive response
     } catch (err) {
         return Response.json(new ApiError(500, "There was an error at the server end"), { status: 500 })
     }

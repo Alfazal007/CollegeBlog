@@ -40,9 +40,13 @@ export async function GET(_: Request) {
                 }
             }
         });
+        const userInterestedCollegeName: string[] = []
+        userInterestedColleges?.interestedColleges.map((college: any) => {
+            userInterestedCollegeName.push(college.name)
+        })
         const collegeToReturn: CollegeToReturn[] = []
         allColleges.map((college) => {
-            if (userInterestedColleges?.interestedColleges.includes(college)) {
+            if (userInterestedCollegeName.includes(college.name)) {
                 collegeToReturn.push({ ...college, isFollowing: true })
             } else {
                 collegeToReturn.push({ ...college, isFollowing: false })
