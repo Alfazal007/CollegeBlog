@@ -2,8 +2,8 @@ import prisma from "@repo/db/client";
 import { ApiResponse } from "../../../../../lib/ApiResponse";
 import { ApiError } from "../../../../../lib/ApiError";
 import { signUpSchema } from "@repo/zod/schema";
-import bcrypt, { hash } from "bcrypt";
-import { sendVerificationEmail } from "../../../../../lib/SendVerificationEmail";
+import bcrypt from "bcrypt";
+import { sendMail } from "../../../../../lib/SendVerificationEmail";
 
 export async function POST(request: Request) {
     const { username, email, password } = await request.json();
@@ -96,19 +96,11 @@ export async function POST(request: Request) {
                 }
             );
         }
-        const emailSent = await sendVerificationEmail(
+        await sendMail(
             email,
             username,
             randomNumber
         );
-        if (emailSent.statusCode != 200) {
-            return Response.json(
-                new ApiError(400, "Some error with email try later"),
-                {
-                    status: 400,
-                }
-            );
-        }
         return Response.json(
             new ApiResponse(200, "Sign up initiated verify yourself", {}),
             {

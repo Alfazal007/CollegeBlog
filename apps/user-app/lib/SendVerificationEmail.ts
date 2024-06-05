@@ -1,24 +1,30 @@
 import VerificationEmail from "../email/SignUpVerify";
-import { ApiResponse } from "./ApiResponse";
-import { resend } from "./Resend";
+import { render } from "@react-email/render";
 
-export async function sendVerificationEmail(
-    email: string,
-    username: string,
-    verifyCode: string
-) {
-    try {
-        await resend.emails.send({
-            from: "Acme <onboarding@resend.dev>",
-            to: [email],
-            subject: "Freelance Verification code",
-            react: VerificationEmail({ username, otp: verifyCode }),
-        });
-        return new ApiResponse(200, "Email sent successfully", {});
-    } catch (emailError) {
-        console.log("Error sending verification email", emailError);
-        return new ApiResponse(400, "Error sending the em", {});
-    }
+
+import nodemailer from "nodemailer"
+export async function sendMail(email: string, username: string, verifyCode: string) {
+    // Create a transporter
+    let transporter = nodemailer.createTransport({
+        service: 'Gmail', // e.g., 'Gmail', 'Yahoo', 'Outlook'
+        auth: {
+            user: process.env.SENDER,
+            pass: process.env.EMAIL_PASSWORD,
+        },
+    });
+    const htmlContent = render(VerificationEmail({ username, otp: verifyCode }))
+    // Setup email data
+    let mailOptions = {
+        from: process.env.SENDER,
+        to: email,
+        subject: 'Mystery message Verification Code', // Subject line
+        html: htmlContent,
+    };
+
+    // Send mail
+    transporter.sendMail(mailOptions, (error, _) => {
+        if (error) {
+            return console.log(error);
+        }
+    });
 }
-
-// TODO:: send email to other domains
