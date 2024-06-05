@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { ApiError } from "../../../../lib/ApiError";
 import { ApiResponse } from "../../../../lib/ApiResponse";
 import { authOptions } from "../../auth/[...nextauth]/options";
+import redis from "../../../../lib/Redis";
 
 export async function POST(request: Request) {
     const { subject, content } = await request.json();
@@ -54,6 +55,7 @@ export async function POST(request: Request) {
                 status: 400,
             });
         } else {
+            await redis.hdel("posts", "allPosts")
             return Response.json(
                 new ApiResponse(201, "Added post successfully", {
                     postId: postInserted.id,

@@ -3,6 +3,7 @@ import { ApiError } from "../../../../../lib/ApiError";
 import { authOptions } from "../../../auth/[...nextauth]/options";
 import prisma from "@repo/db/client";
 import { ApiResponse } from "../../../../../lib/ApiResponse";
+import redis from "../../../../../lib/Redis";
 
 export async function DELETE(
     request: Request,
@@ -46,6 +47,7 @@ export async function DELETE(
                 id: params.postid,
             },
         });
+        await redis.hdel("posts", "allPosts")
         if (!updatedPost) {
             return Response.json(new ApiError(500, "Could not delete post"), {
                 status: 500,

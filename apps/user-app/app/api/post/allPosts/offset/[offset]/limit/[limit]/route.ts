@@ -52,7 +52,7 @@ export async function GET(request: Request, { params }: { params: { offset: numb
                 }
             });
             await redis.hset('posts', 'allPosts', JSON.stringify(allPosts));
-            await redis.expire('posts', 10);
+            await redis.expire('posts', 300);
             return Response.json(new ApiResponse(200, `Found totally ${allPosts.length} posts DB DATA`, allPosts));
         } else {
             const data = JSON.parse(postsToSend.replace(/\\/g, ''));
