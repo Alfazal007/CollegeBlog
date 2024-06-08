@@ -30,6 +30,16 @@ export async function POST(request: Request) {
             where: {
                 id: session.user.id,
             },
+            select: {
+                id: true,
+                isVerified: true,
+                email: true,
+                college: {
+                    select: {
+                        name: true
+                    }
+                }
+            }
         });
         if (!userFromDB || !userFromDB.isVerified) {
             return Response.json(
@@ -55,7 +65,26 @@ export async function POST(request: Request) {
                 status: 400,
             });
         } else {
-            await redis.hdel("posts", "allPosts")
+            const peopleFollowingCollege = await prisma.user.findMany({
+                where: {
+                    interestedColleges: {
+                        some: {
+                            name: userFromDB.college.name
+                        }
+                    }
+                },
+                select: {
+                    email: true
+                }
+            });
+            const allFollowers: string[] = [];
+            peopleFollowingCollege.map((singlePerson) => {
+                allFollowers.push(singlePerson.email)
+            })
+            await redis.hdel("posts", "allPosts");
+            if (peopleFollowingCollege && peopleFollowingCollege.length > 0) {
+                await redis.lpush("notify", JSON.stringify({ college: userFromDB.college.name, url: `http://localhost:3000/post/getpost/${postInserted.id}`, email: allFollowers }))
+            }
             return Response.json(
                 new ApiResponse(201, "Added post successfully", {
                     postId: postInserted.id,

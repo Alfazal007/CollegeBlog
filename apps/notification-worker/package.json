@@ -11,13 +11,8 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "@types/express": "^4.17.21",
-        "cors": "^2.8.5",
         "dotenv": "^16.4.5",
         "esbuild": "^0.21.4",
-        "express": "^4.19.2"
-    },
-    "devDependencies": {
-        "@types/cors": "^2.8.17"
+        "redis": "^4.6.14"
     }
 }

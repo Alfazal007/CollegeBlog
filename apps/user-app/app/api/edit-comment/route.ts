@@ -4,7 +4,7 @@ import { ApiError } from "../../../lib/ApiError";
 import prisma from "@repo/db/client";
 import { ApiResponse } from "../../../lib/ApiResponse";
 
-export async function UPDATE(request: Request) {
+export async function POST(request: Request) {
     const { replyId, content } = await request.json();
     if (!replyId || !content) {
         return Response.json(new ApiError(400, "Incomplete data provided"), {

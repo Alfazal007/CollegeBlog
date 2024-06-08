@@ -1,38 +1,31 @@
-import express, { Request, Response } from "express";
 import { configDotenv } from "dotenv";
 import { sendMail } from "./lib/SendEmail";
-import cors from "cors";
+import { createClient } from "redis";
 
 configDotenv({
     path: "./.env"
 })
-const app = express()
-interface SendEmail {
-    email: string[],
-    url: string,
-    college: string
+
+
+async function startWorker() {
+    try {
+        const client = createClient()
+        client.on('error', (err) => { console.log('Redis Client Error', err); process.exit(0) });
+        await client.connect();
+        console.log("Worker connected to Redis.");
+        while (true) {
+            try {
+                const data = await client.brPop("notify", 0);
+                const jsonData = JSON.parse(data?.element || "")
+                console.log(jsonData)
+                await sendMail(jsonData.email, jsonData.url, jsonData.college)
+            } catch (error) {
+                console.error("Error sending the notifications", error);
+            }
+        }
+    } catch (error) {
+        console.error("Failed to connect to Redis", error);
+    }
 }
 
-app.use(
-    cors({
-        origin: process.env.CORS_ORIGIN,
-        credentials: true,
-    })
-);
-app.use(express.json())
-
-app.post("/notify", async (req: Request, res: Response) => {
-    try {
-        const { email, url, college }: SendEmail = req.body;
-        if (!email || !url || !college) {
-            return res.status(400).json('Email, URL, and college are required.');
-        }
-        return res.status(200).json({ "message": "Done sending the notifications." })
-    } catch (err) {
-        return res.status(500).json({ "message": "There was an iissue sending the notification." })
-    }
-})
-
-app.listen(3001, () => {
-    console.log("Server up and running")
-});
+startWorker();
